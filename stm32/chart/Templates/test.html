@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ops-coffee</title>
+  <!-- 引入 echarts.js -->
+  <script src="/static/echarts.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+</script>
+</head>
+<body>
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="height:400px;"></div>
+  <script type="text/javascript">
+      // 基于准备好的dom，初始化echarts实例
+      var myChart = echarts.init(document.getElementById('main'));
+    // 显示标题，图例和空的坐标轴
+    myChart.setOption({
+        title: {
+            text: 'CPU数据展示'
+        },
+        tooltip: {},
+        legend: {
+            data:['cpu']
+        },
+        xAxis: {
+            data: []
+        },
+        yAxis: {},
+        series: [{
+            name: 'cpu',
+            type: 'line',
+            data: []
+        }]
+    });
+    getChartData();
+
+    var data_cpu = [];
+    var date_cpu = [];
+function getChartData() {
+    $.ajax({
+      type: "get",
+      url: "/chart/add/",
+      dataType: "json",
+      success: function (data) {
+        console.log(data);
+
+        console.log(data.time[0]);
+
+        var i = 0;
+        function addData(shift) {
+
+            date_cpu.push(data.time[i++]);
+            data_cpu.push(data.data[i++]);
+
+            if (shift) {
+                date_cpu.shift();
+                data_cpu.shift();
+            }
+
+        }
+        for (var j = 1; j < 10; j++) {
+            addData();
+        }
+        console.log(data_cpu);
+        console.log(date_cpu)
+        // 指定图表的配置项和数据
+        var option = {
+          title: {
+            text:  'CPU数据展示'
+          },
+          tooltip: {},
+          xAxis: {
+              data: data_cpu
+          },
+          yAxis: {},
+          series: [
+              {
+                name: 'cpu',
+                type: 'line',
+                data: data_cpu
+              }
+          ]
+        };
+
+        setInterval(function () {
+            addData(true);
+            //console.log(data)
+            myChart.setOption({
+                xAxis: {
+                    data: date_cpu
+                },
+                series: [{
+                    name:'cpu',
+                    data: data_cpu
+                }]
+            });
+        }, 1000);
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+      },
+      error: function () {
+        alert('Error: ajax 请求出错！')
+      }
+    });
+}
+
+  </script>
+<script language="JavaScript">
+function myrefresh()
+{
+   window.location.reload();
+}
+setTimeout('myrefresh()',50000); //指定1秒刷新一次
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 引入 echarts.js -->
+    <script src="../static/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        var date = [];
+        var data = [];
+
+        var a=new Array();
+        var b=new Array();
+        var c=new Array();
+        var d=new Array();
+        var i = 0;
+        {% for item in stm32_dirt.cpu.cpu%}
+        a[i++] = '{{ item }}'
+        {% endfor %}
+
+        i = 0;
+        {% for item in stm32_dirt.tem.tem%}
+        d[i++] = '{{ item }}'
+        {% endfor %}
+
+        i = 0;
+        {% for item in stm32_dirt.cpu.time%}
+        b[i++] = '{{ item }}'
+        {% endfor %}
+
+        c[0] = a;
+        c[1] = d;
+        i = 0;
+
+        var j = 0;
+        var f=new Array();
+        f[0]=new Array();
+        f[1]=new Array();
+        function addData(shift) {
+            f[0][j] = c[0][j];
+            f[1][j] = c[1][j]
+            data.push(f);
+            j++;
+            date.push(b[i++]);
+
+            if (shift) {
+                date.shift();
+                data.shift();
+            }
+        }
+
+
+
+        for (var i = 1; i < 100; i++) {
+            addData();
+        }
+
+        option = {
+            title: {
+                text: '堆叠区域图'
+            },
+            tooltip : {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            legend: {
+                data:['cpu','tem']
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+
+            dataZoom: [
+                {
+                    show: true,
+                    realtime: true,
+                    start: 65,
+                    end: 85
+                },
+                {
+                    type: 'inside',
+                    realtime: true,
+                    start: 65,
+                    end: 85
+                }
+            ],
+
+
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: date
+            },
+            yAxis: {
+                boundaryGap: [0, '50%'],
+                type: 'value'
+            },
+            series: [
+                {
+                    name:'cpu',
+                    type:'line',
+                    smooth:true,
+                    symbol: 'none',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'top'
+                         }
+                    },
+                    areaStyle: {
+                        normal: {}
+                    },
+                    data: data[0][0]
+                },
+                {
+                    name:'tem',
+                    type:'line',
+                    smooth:true,
+                    symbol: 'none',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'top'
+                         }
+                    },
+                    areaStyle: {
+                        normal: {}
+                    },
+                    data: data[0][1]
+                }
+            ]
+        };
+
+setInterval(function () {
+    addData(true);
+    myChart.setOption({
+        xAxis: {
+            data: date
+        },
+        series: [{
+            name:'cpu',
+            data: data[0][0]
+        },
+        {
+            name:'tem',
+            data: data[0][1]
+        },
+
+        ]
+    });
+    console.log(data[0][0]);
+    console.log(data[0][1]);
+}, 1000);
+
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+
+
+
+</body>
+</html>
