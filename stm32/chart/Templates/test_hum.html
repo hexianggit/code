@@ -21,7 +21,7 @@
         },
         tooltip: {},
         legend: {
-            data:['cpu']
+            data:['hum']
         },
         xAxis: {
             data: []
@@ -29,7 +29,7 @@
         yAxis: {},
         series: [
             {
-                name: 'cpu',
+                name: 'hum',
                 type: 'line',
                 data: []
             }
@@ -42,7 +42,7 @@
 function getChartData() {
     $.ajax({
       type: "get",
-      url: "/chart/add_cpu/",
+      url: "/chart/add_hum/",
       dataType: "json",
       success: function (data) {
         //console.log(data);
@@ -69,7 +69,7 @@ function getChartData() {
         // 指定图表的配置项和数据
         var option = {
           title: {
-            text:  'CPU数据展示'
+            text:  '湿度数据展示'
           },
           tooltip: {},
           xAxis: {
@@ -78,7 +78,7 @@ function getChartData() {
           yAxis: {},
           series: [
               {
-                name: 'cpu',
+                name: 'hum',
                 type: 'line',
                 data: data_cpu
               }
@@ -93,7 +93,7 @@ function getChartData() {
                     data: date_cpu
                 },
                 series: [{
-                    name:'cpu',
+                    name:'hum',
                     data: data_cpu
                 }]
             });
